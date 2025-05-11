@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Astronauten-Quiz</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rubik+Broken+Fax&display=swap');
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Rubik Broken Fax', cursive;
+    }
+    body {
+      margin: 0;
+      background: url('https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/635cbf74122409.5c2321a89636b.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 700px;
+      width: 90%;
+      backdrop-filter: blur(16px);
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.6);
+      text-align: center;
+      animation: fadeIn 1s ease;
+    }
+    h1 {
+      font-size: 4rem;
+      margin-bottom: 2rem;
+    }
+    button {
+      background-color: #0f0f2d;
+      color: #00ffff;
+      border: 2px solid #00ffff;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s, box-shadow 0.3s;
+    }
+    button:hover {
+      background-color: #00ffff;
+      color: #0f0f2d;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px #00ffff;
+    }
+    .question {
+      font-size: 1.6rem;
+      margin-bottom: 2rem;
+    }
+    .answers button {
+      display: block;
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 1rem;
+      font-size: 1.1rem;
+      background-color: #1e1e3f;
+      border: 2px solid #00ffff;
+      color: #00ffff;
+      border-radius: 8px;
+    }
+    .answers button.correct {
+      background-color: #00b894 !important;
+      border-color: #00e676;
+      color: white;
+    }
+    .answers button.wrong {
+      background-color: #d63031 !important;
+      border-color: #ff7675;
+      color: white;
+    }
+    .hidden {
+      display: none;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background-color: #00ffff;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Start Screen -->
+  <div class="container" id="start-screen">
+    <h1>Hallo, Maike</h1>
+    <button onclick="startQuiz()">Quiz starten</button>
+  </div>
+
+  <!-- Quiz Screen -->
+  <div class="container hidden" id="quiz-screen">
+    <div class="question" id="question"></div>
+    <div class="answers" id="answers"></div>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="progress"></div>
+    </div>
+  </div>
+
+  <!-- End Screen -->
+  <div class="container hidden" id="end-screen">
+    <h1>Wow, du Astronaut</h1>
+    <button onclick="window.location.href='https://example.com'">(weiter)</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "Welcher physikalische Effekt erklärt die scheinbare Schwerelosigkeit an Bord der ISS?",
+        options: ["Zentrifugalkraft", "Aufhebung der Gravitation", "Gleichförmige Kreisbewegung", "Permanenter freier Fall"],
+        answer: 3
+      },
+      {
+        question: "Welcher dieser Treibstoffe wird typischerweise in ionenbasierten Antrieben verwendet?",
+        options: ["RP-1", "Xenon", "Hydrazin", "Methan"],
+        answer: 1
+      },
+      {
+        question: "Welcher Grenzwert für Strahlendosis darf ein Astronaut laut NASA im Lauf seiner Karriere nicht überschreiten?",
+        options: ["50 Millisievert", "0,1 Sievert", "1 Sievert", "10 Sievert"],
+        answer: 2
+      },
+      {
+        question: "Welcher Stoff filtert CO₂ in den Lebenserhaltungssystemen von Raumanzügen?",
+        options: ["Kaliumpermanganat", "Lithiumhydroxid", "Ammoniumnitrat", "Kalziumkarbonat"],
+        answer: 1
+      },
+      {
+        question: "Was ist die ungefähre Orbitalgeschwindigkeit in der LEO (Low Earth Orbit)?",
+        options: ["3.2 km/s", "7.8 km/s", "11.2 km/s", "17.5 km/s"],
+        answer: 1
+      },
+      {
+        question: "Was beschreibt am besten das Hohmann-Transfermanöver?",
+        options: ["Energiearmes, elliptisches Bahnmanöver zwischen zwei Umlaufbahnen", "Rückkehr zur Erde aus dem Orbit", "Notlandung auf dem Mond", "Lagrange-Punkt-Transfer"],
+        answer: 0
+      },
+      {
+        question: "Wie nennt man die Zone, in der der menschliche Körper bei zu langem Aufenthalt im All massive Knochendichte verliert?",
+        options: ["Calcium-Schicht", "Osteoporosezone", "Mikroschwerkraftzone", "Radiationsgürtel"],
+        answer: 2
+      },
+      {
+        question: "Welcher Teil des Raumanzugs schützt den Astronauten am meisten vor Mikrometeoriten?",
+        options: ["Thermoschicht", "Visier", "Torso-Micrometeoroid Shield", "Handschuh-Isolierung"],
+        answer: 2
+      },
+      {
+        question: "Welche Körperveränderung tritt bei längeren Raumflügen NICHT auf?",
+        options: ["Muskelatrophie", "Knochenverlust", "Zunahme der Lungenkapazität", "Flüssigkeitsverlagerung zum Kopf"],
+        answer: 2
+      },
+      {
+        question: "Was ist das Hauptprinzip des Wasserrecyclings an Bord der ISS?",
+        options: ["Elektrolyse", "Ionenaustausch", "Destillation unter Vakuum", "Osmotische Filtration"],
+        answer: 2
+      },
+      {
+        question: "Welcher dieser Begriffe steht NICHT im Zusammenhang mit Raumfahrttechnik?",
+        options: ["Gimbal", "Reaction Control System", "Venturi-Effekt", "Voxel"],
+        answer: 3
+      },
+      {
+        question: "Was beschreibt das Kármán-Limit?",
+        options: ["Maximale Schubkraft eines Raketenmotors", "Grenze zwischen Erdatmosphäre und Weltraum", "Obergrenze für bemannte Raumfahrt", "Magnetfeld-Grenze der Erde"],
+        answer: 1
+      },
+      {
+        question: "Warum treten auf der ISS Tag und Nacht im 90-Minuten-Takt auf?",
+        options: ["Wegen der hohen Geschwindigkeit der Erdrotation", "Weil die ISS die Erde ca. alle 90 Minuten umrundet", "Aufgrund von künstlichen Lichtsimulationen", "Durch zyklische Sonneneruptionen"],
+        answer: 1
+      },
+      {
+        question: "Wie heißt der Punkt, an dem die Gravitationskräfte zweier Himmelskörper sich aufheben?",
+        options: ["Lagrange-Punkt", "Schwarzschild-Radius", "Kepler-Zone", "Roche-Grenze"],
+        answer: 0
+      },
+      {
+        question: "Welche Raumstation war die erste dauerhaft bemannte?",
+        options: ["ISS", "Skylab", "Salyut 1", "Mir"],
+        answer: 2
+      },
+      {
+        question: "Was ist die Escape Velocity der Erde?",
+        options: ["7,8 km/s", "11,2 km/s", "16,3 km/s", "25,4 km/s"],
+        answer: 1
+      },
+      {
+        question: "Welche physiologische Veränderung kann im All zu Sehstörungen führen?",
+        options: ["Retina-Detachment", "Fluid Shifts in den Kopf", "Strahlenkatarakt", "Atrophie der Hornhaut"],
+        answer: 1
+      },
+      {
+        question: "Wozu dient das Canadarm auf der ISS?",
+        options: ["Kommunikation mit Satelliten", "Müllentsorgung", "Bewegung von Fracht und Astronauten", "Steuerung der Umlaufbahn"],
+        answer: 2
+      },
+      {
+        question: "Was ist die Hauptfunktion von Gyroskopen in Satelliten?",
+        options: ["Schubkraft erzeugen", "Daten senden", "Lagekontrolle durch Trägheitsmessung", "Radarstrahlen fokussieren"],
+        answer: 2
+      },
+      {
+        question: "Welcher dieser Effekte tritt beim Wiedereintritt in die Atmosphäre auf?",
+        options: ["Plötzlicher Druckabfall", "Ionisation der Luftmoleküle", "Magnetische Abschirmung", "CO₂-Kondensation"],
+        answer: 1
+      }
+    ];
+
+    let currentQuestion = 0;
+
+    function startQuiz() {
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (currentQuestion >= questions.length) {
+        document.getElementById('progress').style.width = '100%';
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('end-screen').classList.remove('hidden');
+        return;
+      }
+
+      const questionData = questions[currentQuestion];
+      const questionElem = document.getElementById('question');
+      const answersElem = document.getElementById('answers');
+      const progressElem = document.getElementById('progress');
+
+      questionElem.textContent = questionData.question;
+      answersElem.innerHTML = '';
+      progressElem.style.width = ((currentQuestion) / questions.length) * 100 + '%';
+
+      questionData.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(index, btn);
+        answersElem.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selectedIndex, buttonElem) {
+      if (currentQuestion >= questions.length) return;
+
+      const correctIndex = questions[currentQuestion].answer;
+
+      if (selectedIndex === correctIndex) {
+        buttonElem.classList.add('correct');
+        setTimeout(() => {
+          currentQuestion++;
+          showQuestion();
+        }, 1000);
+      } else {
+        buttonElem.classList.add('wrong');
+        setTimeout(() => {
+          showQuestion();
+        }, 1000);
+      }
+    }
+  </script>
+</body>
+</html>
